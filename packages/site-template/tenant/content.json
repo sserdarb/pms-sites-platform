@@ -1,0 +1,69 @@
+{
+  "about": {
+    "title": "Sakin bir kıyıda küçük bir hikaye",
+    "body": "Demo Boutique Hotel, Urla'nın taş duvarları arasında sade bir konaklama anlayışı sunar. Her oda, yerel zanaatkârların izlerini taşır.\n\nMisafirlerimiz için sabah ekmeği, gün boyu kahve servisi ve ücretsiz bisiklet kullanımı sunarız.",
+    "image": "/about.webp"
+  },
+  "rooms": [
+    {
+      "id": "deluxe",
+      "name": "Deluxe Bahçe Odası",
+      "shortDescription": "Bahçeye açılan terası ve özel banyosuyla 28 m².",
+      "image": "/rooms/deluxe.webp",
+      "capacity": { "adults": 2, "children": 1 },
+      "sizeSqm": 28,
+      "fromPrice": { "amount": 3200, "currency": "TRY" },
+      "features": ["Bahçe terası", "King yatak", "Yağmur duşu"]
+    },
+    {
+      "id": "junior-suite",
+      "name": "Junior Suite",
+      "shortDescription": "Oturma alanlı, ek banyolu, 42 m² ferah suite.",
+      "image": "/rooms/junior-suite.webp",
+      "capacity": { "adults": 2, "children": 2 },
+      "sizeSqm": 42,
+      "fromPrice": { "amount": 4900, "currency": "TRY" },
+      "features": ["Oturma alanı", "Çift lavabo", "Espresso makinesi"]
+    },
+    {
+      "id": "loft",
+      "name": "Çatı Loft",
+      "shortDescription": "Eğimli tavanlı, sokak manzaralı romantik loft.",
+      "image": "/rooms/loft.webp",
+      "capacity": { "adults": 2, "children": 0 },
+      "sizeSqm": 36,
+      "fromPrice": { "amount": 4200, "currency": "TRY" },
+      "features": ["Çatı manzarası", "Jakuzi", "Kitaplık"]
+    }
+  ],
+  "amenities": [
+    { "id": "wifi", "icon": "📶", "title": "Ücretsiz WiFi", "description": "Tüm tesiste hızlı internet" },
+    { "id": "breakfast", "icon": "🥐", "title": "Yerel Kahvaltı", "description": "Köy ürünleriyle açık büfe" },
+    { "id": "parking", "icon": "🚗", "title": "Otopark", "description": "Ücretsiz, kapalı otopark" },
+    { "id": "bike", "icon": "🚲", "title": "Bisiklet", "description": "Misafirlerimize ücretsiz" }
+  ],
+  "gallery": [
+    { "src": "/gallery/01.webp", "alt": "Avlu" },
+    { "src": "/gallery/02.webp", "alt": "Restoran" },
+    { "src": "/gallery/03.webp", "alt": "Kahvaltı" },
+    { "src": "/gallery/04.webp", "alt": "Oda detayı" },
+    { "src": "/gallery/05.webp", "alt": "Bahçe" },
+    { "src": "/gallery/06.webp", "alt": "Çatı manzarası" }
+  ],
+  "testimonials": [
+    {
+      "author": "Ayşe K.",
+      "source": "google",
+      "rating": 5,
+      "text": "Sakin, samimi ve son derece düşünülmüş bir yer. Kesinlikle tekrar geleceğiz.",
+      "date": "2025-09-12"
+    },
+    {
+      "author": "Marcus B.",
+      "source": "tripadvisor",
+      "rating": 5,
+      "text": "A boutique gem in Urla. Staff went above and beyond.",
+      "date": "2025-08-01"
+    }
+  ]
+}
