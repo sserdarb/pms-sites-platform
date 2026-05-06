@@ -24,11 +24,14 @@ export async function createApplication(input: {
   gitRepository: string;
   gitBranch: string;
   fqdn: string;
+  destinationUuid: string;
   envVars?: Record<string, string>;
 }): Promise<{ uuid: string }> {
   const body = {
     project_uuid: env.coolify.projectUuid,
     server_uuid: env.coolify.serverUuid,
+    destination_uuid: input.destinationUuid,
+    environment_name: 'production',
     name: input.name,
     git_repository: input.gitRepository,
     git_branch: input.gitBranch,
@@ -37,7 +40,7 @@ export async function createApplication(input: {
     domains: input.fqdn,
     instant_deploy: false,
   };
-  const res = await coolify<{ uuid: string }>('/applications/private-deploy-key', {
+  const res = await coolify<{ uuid: string }>('/applications/public', {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -46,7 +49,7 @@ export async function createApplication(input: {
     for (const [k, v] of Object.entries(input.envVars)) {
       await coolify(`/applications/${res.uuid}/envs`, {
         method: 'POST',
-        body: JSON.stringify({ key: k, value: v, is_preview: false, is_build_time: true }),
+        body: JSON.stringify({ key: k, value: v, is_preview: false, is_buildtime: true }),
       });
     }
   }

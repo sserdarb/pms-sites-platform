@@ -76,11 +76,15 @@ export function provisionAsync(input: ProvisionInput): Job {
 
       // 5. Coolify: create application
       setStep(job.id, 'coolify:create', { status: 'running', startedAt: Date.now() });
+      if (!env.coolify.destinationUuid) {
+        throw new Error('COOLIFY_DESTINATION_UUID env required');
+      }
       const app = await createApplication({
         name: `tenant-${input.slug}`,
-        gitRepository: repo.cloneUrl,
+        gitRepository: repo.url, // public https URL (createUsingTemplate sets private:false)
         gitBranch: 'main',
         fqdn: `https://${dns.name}`,
+        destinationUuid: env.coolify.destinationUuid,
         envVars: {
           PMS_NEXT_STANDALONE: '1',
           PMS_TENANT_ID: parsed.data.property.id,

@@ -30,5 +30,6 @@ export const env = {
     apiToken: optional('COOLIFY_API_TOKEN'),
     serverUuid: optional('COOLIFY_SERVER_UUID'),
     projectUuid: optional('COOLIFY_PROJECT_UUID'),
+    destinationUuid: optional('COOLIFY_DESTINATION_UUID'),
   },
 } as const;

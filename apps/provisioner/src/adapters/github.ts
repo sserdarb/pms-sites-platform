@@ -19,7 +19,8 @@ export async function createTenantRepo(slug: string, description: string): Promi
     owner: env.github.org,
     name: slug,
     description,
-    private: true,
+    // Public so Coolify can clone via /applications/public (no SSH key / GitHub App needed for MVP)
+    private: false,
     include_all_branches: false,
   });
   return { url: res.data.html_url, cloneUrl: res.data.clone_url };
