@@ -55,8 +55,9 @@ Env değerlerini `.env.deploy.example` üzerinden her servise yapıştır. Provi
 
 ## Generated Secrets
 
-```
-PMS_PROVISIONER_TOKEN=c9d82205a4325a7f8301a6f8cc505285b3ee1cbf0fa58a7d763614cac6afd59d
-```
+`PMS_PROVISIONER_TOKEN` deploy sırasında üretilip doğrudan Coolify env değişkenlerine yapıştırıldı. Repo'ya commit edilmedi.
 
-(Bu değer `.env.deploy.example` içinde de var — Coolify'a yapıştırırken oradan al.)
+Yeniden üretmek için:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
