@@ -26,8 +26,13 @@ export function provisionAsync(input: ProvisionInput): Job {
 
   void (async () => {
     startJob(job.id);
+    let currentStep = STEPS[0]!;
+    const setCurrent = (name: string) => {
+      currentStep = name;
+    };
     try {
       // 1. Validate
+      setCurrent('validate');
       setStep(job.id, 'validate', { status: 'running', startedAt: Date.now() });
       const parsed = TenantConfigSchema.safeParse(input.config);
       if (!parsed.success) {
@@ -41,6 +46,7 @@ export function provisionAsync(input: ProvisionInput): Job {
       setStep(job.id, 'validate', { status: 'succeeded', finishedAt: Date.now() });
 
       // 2. GitHub: repo from template
+      setCurrent('github:repo');
       setStep(job.id, 'github:repo', { status: 'running', startedAt: Date.now() });
       const repo = await createTenantRepo(
         input.slug,
@@ -53,6 +59,7 @@ export function provisionAsync(input: ProvisionInput): Job {
       });
 
       // 3. GitHub: commit tenant config + content
+      setCurrent('github:commit');
       setStep(job.id, 'github:commit', { status: 'running', startedAt: Date.now() });
       const tenantTs = renderTenantConfigTs(parsed.data);
       await commitTenantConfig(
@@ -66,6 +73,7 @@ export function provisionAsync(input: ProvisionInput): Job {
       setStep(job.id, 'github:commit', { status: 'succeeded', finishedAt: Date.now() });
 
       // 4. Cloudflare: DNS
+      setCurrent('cloudflare:dns');
       setStep(job.id, 'cloudflare:dns', { status: 'running', startedAt: Date.now() });
       const dns = await createSubdomainARecord(input.slug);
       setStep(job.id, 'cloudflare:dns', {
@@ -75,6 +83,7 @@ export function provisionAsync(input: ProvisionInput): Job {
       });
 
       // 5. Coolify: create application
+      setCurrent('coolify:create');
       setStep(job.id, 'coolify:create', { status: 'running', startedAt: Date.now() });
       if (!env.coolify.destinationUuid) {
         throw new Error('COOLIFY_DESTINATION_UUID env required');
@@ -97,6 +106,7 @@ export function provisionAsync(input: ProvisionInput): Job {
       });
 
       // 6. Coolify: deploy
+      setCurrent('coolify:deploy');
       setStep(job.id, 'coolify:deploy', { status: 'running', startedAt: Date.now() });
       const deploy = await deployApplication(app.uuid);
       setStep(job.id, 'coolify:deploy', {
@@ -113,10 +123,9 @@ export function provisionAsync(input: ProvisionInput): Job {
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      const running = (input as { current?: string }).current ?? STEPS.find((n) => true) ?? 'unknown';
-      setStep(job.id, running, { status: 'failed', error: msg, finishedAt: Date.now() });
+      setStep(job.id, currentStep, { status: 'failed', error: msg, finishedAt: Date.now() });
       failJob(job.id, msg);
-      console.error(`[provisioner] job ${job.id} failed:`, err);
+      console.error(`[provisioner] job ${job.id} step=${currentStep} failed:`, err);
     }
   })();
 

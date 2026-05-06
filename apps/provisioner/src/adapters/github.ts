@@ -26,6 +26,21 @@ export async function createTenantRepo(slug: string, description: string): Promi
   return { url: res.data.html_url, cloneUrl: res.data.clone_url };
 }
 
+async function waitForRepoReady(slug: string, maxAttempts = 15, delayMs = 2000): Promise<string> {
+  const gh = client();
+  let lastErr: unknown;
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const ref = await gh.git.getRef({ owner: env.github.org, repo: slug, ref: 'heads/main' });
+      return ref.data.object.sha;
+    } catch (e: unknown) {
+      lastErr = e;
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+  throw lastErr ?? new Error(`Repo ${slug} not ready after ${maxAttempts} attempts`);
+}
+
 export async function commitTenantConfig(
   slug: string,
   files: Record<string, string>,
@@ -35,8 +50,7 @@ export async function commitTenantConfig(
   const owner = env.github.org;
   const repo = slug;
 
-  const refRes = await gh.git.getRef({ owner, repo, ref: 'heads/main' });
-  const baseSha = refRes.data.object.sha;
+  const baseSha = await waitForRepoReady(slug);
 
   const treeItems = await Promise.all(
     Object.entries(files).map(async ([path, content]) => {
