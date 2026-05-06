@@ -13,7 +13,7 @@ WORKDIR /app
 # Workspace dep install (tüm node_modules)
 # ============================================================================
 FROM base AS deps
-COPY pnpm-workspace.yaml pnpm-lock.yaml* package.json ./
+COPY pnpm-workspace.yaml pnpm-lock.yaml* package.json tsconfig.base.json ./
 COPY packages ./packages
 COPY apps ./apps
 RUN pnpm install --frozen-lockfile=false
