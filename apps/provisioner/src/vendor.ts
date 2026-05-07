@@ -27,6 +27,8 @@ const ALLOWED_FILES = new Set([
   'tsconfig.json',
   'README.md',
 ]);
+// Source maps are not needed at runtime; skip to halve commit file count
+const SKIP_EXT = new Set(['.map']);
 
 interface DirentLike {
   name: string;
@@ -53,6 +55,7 @@ async function walkPackage(absSrc: string): Promise<Map<string, string>> {
         await recurse(full, nextRel);
       } else if (e.isFile()) {
         if (rel === '' && !ALLOWED_FILES.has(name)) continue;
+        if (SKIP_EXT.has(name.slice(name.lastIndexOf('.')))) continue;
         try {
           const content = await fs.readFile(full, 'utf-8');
           out.set(nextRel, content);

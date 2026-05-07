@@ -52,22 +52,24 @@ export async function commitTenantConfig(
 
   const baseSha = await waitForRepoReady(slug);
 
-  const treeItems = await Promise.all(
-    Object.entries(files).map(async ([path, content]) => {
-      const blob = await gh.git.createBlob({
-        owner,
-        repo,
-        content: Buffer.from(content).toString('base64'),
-        encoding: 'base64',
-      });
-      return {
-        path,
-        mode: '100644' as const,
-        type: 'blob' as const,
-        sha: blob.data.sha,
-      };
-    }),
-  );
+  const entries = Object.entries(files);
+  const treeItems: Array<{ path: string; mode: '100644'; type: 'blob'; sha: string }> = [];
+  const CHUNK = 10;
+  for (let i = 0; i < entries.length; i += CHUNK) {
+    const chunk = entries.slice(i, i + CHUNK);
+    const blobs = await Promise.all(
+      chunk.map(async ([path, content]) => {
+        const blob = await gh.git.createBlob({
+          owner,
+          repo,
+          content: Buffer.from(content).toString('base64'),
+          encoding: 'base64',
+        });
+        return { path, mode: '100644' as const, type: 'blob' as const, sha: blob.data.sha };
+      }),
+    );
+    treeItems.push(...blobs);
+  }
 
   const tree = await gh.git.createTree({
     owner,
