@@ -5,6 +5,7 @@ import { createSubdomainARecord } from './adapters/cloudflare.js';
 import { createApplication, deployApplication } from './adapters/coolify.js';
 import { createJob, failJob, finishJob, setStep, startJob, type Job } from './jobs.js';
 import { env } from './env.js';
+import { collectVendoredFiles, PNPM_WORKSPACE_YAML } from './vendor.js';
 
 export interface ProvisionInput {
   slug: string;
@@ -58,19 +59,26 @@ export function provisionAsync(input: ProvisionInput): Job {
         detail: repo.url,
       });
 
-      // 3. GitHub: commit tenant config + content
+      // 3. GitHub: commit tenant config + content + vendored workspace packages
       setCurrent('github:commit');
       setStep(job.id, 'github:commit', { status: 'running', startedAt: Date.now() });
       const tenantTs = renderTenantConfigTs(parsed.data);
+      const vendored = await collectVendoredFiles();
       await commitTenantConfig(
         input.slug,
         {
           'tenant/tenant.config.ts': tenantTs,
           'tenant/content.json': JSON.stringify(input.content, null, 2),
+          'pnpm-workspace.yaml': PNPM_WORKSPACE_YAML,
+          ...vendored,
         },
-        `chore: initial tenant config for ${input.slug}`,
+        `chore: initial tenant config + vendored workspace packages for ${input.slug}`,
       );
-      setStep(job.id, 'github:commit', { status: 'succeeded', finishedAt: Date.now() });
+      setStep(job.id, 'github:commit', {
+        status: 'succeeded',
+        finishedAt: Date.now(),
+        detail: `${Object.keys(vendored).length} vendor files`,
+      });
 
       // 4. Cloudflare: DNS
       setCurrent('cloudflare:dns');

@@ -22,13 +22,15 @@ RUN pnpm install --frozen-lockfile=false
 # PROVISIONER
 # ============================================================================
 FROM deps AS provisioner-builder
-RUN pnpm --filter @pms/tenant-config build && pnpm --filter @pms/provisioner build
+# Build ALL packages so provisioner has built dist/ to bundle as vendor snapshots
+RUN pnpm -r --filter './packages/**' build && pnpm --filter @pms/provisioner build
 
 FROM node:22-alpine AS provisioner-runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
 COPY --from=provisioner-builder /app /app
+ENV PMS_VENDOR_ROOT=/app/packages
 EXPOSE 4200
 ENV PORT=4200
 WORKDIR /app/apps/provisioner
